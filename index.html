@@ -25,8 +25,8 @@
           href="https://buy.stripe.com/REEMPLAZAR_MENSUAL"
           href="https://buy.stripe.com/REEMPLAZAR_UNICO"
           Precios puestos: 29 EUR/mes y 249 EUR pago unico.
-       3. Si hay build de backtest gratuita, descomentar el bloque
-          marcado BACKTEST-BUILD en la sección Pricing.
+       3. Subir BearStackPro-Backtest.ex5 al repo (compilado con
+          #define WISFLI_BACKTEST_ONLY). El .gitignore ya lo permite.
        4. Magic number real en vivo: var BEARSTACK_MAGIC (script final).
           Ahora está el del EA por defecto (34034034).
      ============================================================ -->
@@ -61,7 +61,7 @@
       <a href="#how">How it works</a>
       <a href="#spec">Specification</a>
       <a href="#live">Live on Armada</a>
-      <a href="#licence" class="opt">Licence</a>
+      <a href="setup.html" class="opt">Setup</a>
       <a href="#faq" class="opt">Questions</a>
       <a href="#pricing" class="pill">Get BearStack</a>
     </nav>
@@ -82,6 +82,7 @@
         <a class="btn brass" href="#pricing">Get BearStack Pro — €29/month</a>
         <a class="btn line" href="#live">See it running</a>
       </div>
+      <p class="aside">Or <a href="#backtest">download the free backtest build</a> and run it in the Strategy Tester before you decide.</p>
     </div>
 
     <figure class="instrument" style="margin:0">
@@ -384,6 +385,13 @@
       </div>
     </div>
 
+    <div class="caveat" id="backtest">
+      <h3>Test it first, for free</h3>
+      <p>There is a separate build of BearStack Pro for the Strategy Tester. Same rules, same defaults, same code — it simply refuses to run anywhere except the tester, so it needs no licence key and costs nothing. Run it on your own broker's XAUUSD history, with your own spread and commission, and decide from that.</p>
+      <p><a class="btn ghost" href="BearStackPro-Backtest.ex5" download>Download the backtest build</a></p>
+      <p>Put it in <em>File → Open Data Folder → MQL5 → Experts</em>, refresh the Navigator, then open the Strategy Tester and pick it there. Attached to a normal chart it will tell you, in the Journal, that it is the backtest version and stop.</p>
+    </div>
+
     <div class="cols-3">
       <div>
         <h3>What you need</h3>
@@ -427,7 +435,7 @@
         <p>Paste the key into the inputs, enable algorithmic trading and check the Journal: the EA prints its magic number and its settings as it starts.</p>
       </li>
     </ol>
-    <p class="hint">Run it on a demo account for a few days first. It costs nothing and it is the only way to see how your broker's spread on gold behaves at the hours BearStack Pro trades.</p>
+    <p class="hint">The <a href="setup.html">setup guide</a> covers every input, the tester settings and what each Journal message means. Run it on a demo account for a few days first: it costs nothing and it is the only way to see how your broker's spread on gold behaves at the hours BearStack Pro trades.</p>
   </div>
 </section>
 
@@ -442,7 +450,7 @@
     <div class="faq-list">
       <details>
         <summary>Can I backtest it before subscribing?</summary>
-        <p>The Strategy Tester is the right place to judge any system, and we encourage it. Ask at <a href="mailto:support@wisfli.com">support@wisfli.com</a> what is available for BearStack Pro — when a free backtest build exists it is linked on this page, and it runs in the tester only, not on a live or demo chart.</p>
+        <p>Yes, and you should. <a href="BearStackPro-Backtest.ex5" download>The backtest build</a> is free and needs no key. It contains the same logic as the paid version but only runs inside the Strategy Tester: on a live or demo chart it prints a line in the Journal and does nothing. Test it on your own broker's data, because the spread and commission on gold are a large part of the result.</p>
       </details>
       <details>
         <summary>The EA says it cannot reach the licence server.</summary>
@@ -462,7 +470,7 @@
       </details>
       <details>
         <summary>Do demo accounts need a licence?</summary>
-        <p>Yes. The subscription covers the software, not the account type, so a demo chart validates the key exactly as a live one does.</p>
+        <p>Yes. The subscription covers the software, not the account type, so a demo chart validates the key exactly as a live one does. Only the Strategy Tester runs without a key — that is what the free backtest build is for.</p>
       </details>
       <details>
         <summary>Why does it only sell?</summary>
@@ -512,6 +520,7 @@
           <li><a href="#spec">Specification</a></li>
           <li><a href="#live">Live on Armada</a></li>
           <li><a href="#pricing">Pricing</a></li>
+          <li><a href="setup.html">Setup guide</a></li>
           <li><a href="https://api.wisfli.com/manage">Manage your subscription</a></li>
         </ul>
       </div>

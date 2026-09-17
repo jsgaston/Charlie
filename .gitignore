@@ -1,6 +1,6 @@
-*.ex5
+﻿*.ex5
+!*-Backtest.ex5
 *.set
 WisfliSecret.mqh
 *.mq5
-.DS_Store
 Thumbs.db

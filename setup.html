@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setting up BearStack Pro | Wisfli</title>
+<meta name="description" content="Install BearStack Pro on MetaTrader 5: where to put the file, how to allow the licence address, what every input does and what to do when something goes wrong.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://jsgaston.github.io/Charlie/setup.html">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2306141F'/><rect x='6' y='6' width='20' height='20' fill='%23E4EAE8'/><rect x='11' y='11' width='10' height='10' fill='%23BE3A2B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design-kit.css">
+
+<style>
+  .keybox{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.92em;background:rgba(15,44,66,.07);padding:2px 7px}
+  .dark .keybox{background:rgba(220,230,236,.1)}
+  .hero.short > .wrap{grid-template-columns:1fr;padding-top:64px;padding-bottom:66px}
+  .hero.short .lede{max-width:34em}
+  table.data td.first{width:30%;font-weight:600}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="https://wisfli.com/"><svg viewBox="0 0 60 40" aria-hidden="true"><path d="M0 0h60v40H0z" fill="#14528C"/><path d="M8 8h44v24H8z" fill="#fff"/><path d="M18 14h24v12H18z" fill="#C8322A"/></svg>WISFLI <span class="prod">/ BearStack Pro</span></a>
+    <nav aria-label="Page">
+      <a href="index.html">Product page</a>
+      <a href="#install">Install</a>
+      <a href="#inputs">Inputs</a>
+      <a href="#trouble" class="opt">Troubleshooting</a>
+      <a href="https://api.wisfli.com/manage" class="pill">Manage licence</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero short">
+  <div class="wrap">
+    <div>
+      <p class="where"><i></i> Setup guide</p>
+      <h1 class="long">Getting BearStack Pro running</h1>
+      <p class="lede">Ten minutes, most of it waiting for MetaTrader to restart. If you only read one section, read the one about WebRequest — it is what stops nine out of ten first runs.</p>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="head">
+      <h2>Install</h2>
+      <p>Your purchase email carries two things: the file <span class="keybox">BearStackPro.ex5</span> and a licence key that looks like <span class="keybox">WSF-XXXX-XXXX-XXXX</span>. Keep the email; the key is not shown anywhere else.</p>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <b>Put the file where MetaTrader looks</b>
+        <p>In MetaTrader 5: <em>File → Open Data Folder</em>, then <span class="keybox">MQL5 → Experts</span>. Drop <span class="keybox">BearStackPro.ex5</span> in there. Right-click the Navigator and choose Refresh, or restart the terminal.</p>
+      </li>
+      <li>
+        <b>Allow the licence address</b>
+        <p><em>Tools → Options → Expert Advisors</em>. Tick <em>Allow WebRequest for listed URL</em> and add <span class="keybox">https://api.wisfli.com</span> — exactly that, no trailing slash, no path. Click OK.</p>
+      </li>
+      <li>
+        <b>Open an XAUUSD chart on M1</b>
+        <p>The rules were built on gold on the one-minute chart. Other symbols and timeframes will run, but nothing about them has been tested and the EA will say so in the Journal.</p>
+      </li>
+      <li>
+        <b>Drag the EA on and paste your key</b>
+        <p>Drag BearStackPro from the Navigator onto the chart. In the <em>Inputs</em> tab, paste the key into <em>Licence key</em>. On the <em>Common</em> tab, tick <em>Allow Algo Trading</em>. Click OK, and make sure the <em>Algo Trading</em> button in the toolbar is green.</p>
+      </li>
+    </ol>
+
+    <div class="caveat">
+      <h3>Check the Journal before you walk away</h3>
+      <p>Open the <em>Journal</em> tab (not <em>Experts</em>) and look for two lines. One says <span class="keybox">Wisfli BSP | License active…</span>. The other prints the magic number and the settings the EA started with. If the first line says anything else, the section on troubleshooting below tells you what it means.</p>
+    </div>
+  </div>
+</section>
+
+<section id="vps" class="panel">
+  <div class="wrap">
+    <div class="head">
+      <h2>A machine that stays on</h2>
+      <p>BearStack Pro reads one-minute bars and manages a position on every tick. A laptop that sleeps, updates or loses wifi is not a platform for it.</p>
+    </div>
+    <div class="cols-3">
+      <div>
+        <h3>VPS</h3>
+        <p>Any Windows VPS near your broker's servers will do. MetaTrader's own hosting, from the terminal, is the least troublesome option if you do not want to manage a machine.</p>
+      </div>
+      <div>
+        <h3>What a restart costs you</h3>
+        <p>Nothing that is open: stops and targets live on the broker's side. What you lose is the management — break-even, trailing and the time exit stop happening until the terminal is back.</p>
+      </div>
+      <div>
+        <h3>Your key travels with you</h3>
+        <p>The same key works on three MetaTrader accounts, so moving from your desktop to a VPS needs no new purchase. Free an old account at <a href="https://api.wisfli.com/manage">api.wisfli.com/manage</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="inputs">
+  <div class="wrap">
+    <div class="head">
+      <h2>What the inputs do</h2>
+      <p>The defaults are the ones running on the Armada account. You can change anything, but once you do, the published results no longer describe your setup.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data">
+        <caption>General</caption>
+        <tbody>
+          <tr><td class="first">Licence key</td><td>Your <span class="keybox">WSF-</span> key. Leave it empty in the Strategy Tester.</td></tr>
+          <tr><td class="first">Signal timeframe</td><td>The bar the conditions are read on. M1 by default.</td></tr>
+          <tr><td class="first">Magic number</td><td>Identifies this EA's positions. Change it if you run two copies on the same account.</td></tr>
+          <tr><td class="first">Maximum deviation</td><td>Slippage tolerated when the order goes in, in points.</td></tr>
+          <tr><td class="first">Maximum spread</td><td>No entry above this. On gold this filter matters; leave it on.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data">
+        <caption>Condition stacks</caption>
+        <tbody>
+          <tr><td class="first">S01 to S04 enable</td><td>Switch a whole stack off. With all four off the EA never trades.</td></tr>
+          <tr><td class="first">Minimum conditions true</td><td>How many of that stack's conditions must hold for it to fire. Lower means more trades and weaker ones; higher means fewer and rarer. Two is the tested value.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data">
+        <caption>Exits</caption>
+        <tbody>
+          <tr><td class="first">Stop and target mode</td><td>Fixed points, or multiples of ATR. Points by default.</td></tr>
+          <tr><td class="first">Stop loss / take profit</td><td>600 and 430 points. On a two-digit XAUUSD quote that is 6.00 and 4.30 dollars.</td></tr>
+          <tr><td class="first">Break-even</td><td>Moves the stop to entry once the trade is 250 points in front, with a 20-point offset.</td></tr>
+          <tr><td class="first">Trailing stop</td><td>Off by default. On a system with a time exit it tends to cut the good trades early.</td></tr>
+          <tr><td class="first">Maximum holding time</td><td>Closes after 180 minutes. Zero disables it.</td></tr>
+          <tr><td class="first">Friday cut-off</td><td>Closes positions and stops entries from 21:00 server time on Friday.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data">
+        <caption>Risk</caption>
+        <tbody>
+          <tr><td class="first">Lot mode</td><td>Fixed lots, or a percentage of balance risked per trade, sized from the stop distance.</td></tr>
+          <tr><td class="first">Risk per trade</td><td>0.5% by default. On a small account the minimum lot may risk more than that — see the next line.</td></tr>
+          <tr><td class="first">Skip if minimum lot too big</td><td>On: the trade is skipped and the reason printed. Off: it trades at the minimum lot and risks more than you asked for.</td></tr>
+          <tr><td class="first">Maximum entries per day</td><td>Five. Counted per symbol and magic number.</td></tr>
+          <tr><td class="first">Daily loss stop</td><td>Blocks new entries once the day is 2% down on the opening balance. Open positions keep being managed.</td></tr>
+          <tr><td class="first">Cooldown</td><td>Bars that must pass after an entry before another one is allowed.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data">
+        <caption>Logging</caption>
+        <tbody>
+          <tr><td class="first">CSV audit log</td><td>Signals only, every bar, or off. The file lands in <span class="keybox">MQL5 → Files</span> and records every condition behind each decision.</td></tr>
+          <tr><td class="first">Show the panel</td><td>The on-chart readout of the four stacks and the last decision.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="backtest" class="panel">
+  <div class="wrap">
+    <div class="head">
+      <h2>Backtesting</h2>
+      <p>The paid build runs in the Strategy Tester without a key, so you can test with the same file you trade with. There is also a <a href="BearStackPro-Backtest.ex5" download>free backtest build</a> that runs in the tester only.</p>
+    </div>
+    <div class="cols-2">
+      <div class="prose">
+        <h3>Settings that matter</h3>
+        <p>Use <em>Every tick based on real ticks</em> if your broker provides them. On M1 with a 600-point stop, modelling from M1 open prices will flatter the result badly.</p>
+        <p>Set the spread to <em>Current</em> or to a realistic fixed value from your own account. Gold spreads widen at the open and around news, and this system trades in those windows.</p>
+      </div>
+      <div class="prose">
+        <h3>What you cannot see in a test</h3>
+        <p>Requotes, rejected orders and the real slippage on a fast move. Those are the difference between a demo record and a live one, and they work against a short-side system on gold more than most.</p>
+        <p>Test at least a full year, and look at the losing months rather than the total.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="trouble">
+  <div class="wrap">
+    <div class="head">
+      <h2>When something goes wrong</h2>
+      <p>The EA prints its state in the Journal. Find the line that starts with <span class="keybox">Wisfli BSP</span> and match it below.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data">
+        <caption>Licence messages</caption>
+        <tbody>
+          <tr><td class="first">Allow WebRequest for https://api.wisfli.com</td><td>The address is not on the list in <em>Tools → Options → Expert Advisors</em>. Add it exactly, then remove the EA from the chart and put it back.</td></tr>
+          <tr><td class="first">Enter your license key in the EA inputs</td><td>The key field is empty. Open the EA properties and paste the key from your purchase email.</td></tr>
+          <tr><td class="first">Invalid license key</td><td>Usually a copy error: a missing character, or a space picked up from the email. Copy it again.</td></tr>
+          <tr><td class="first">This license key belongs to a different product</td><td>You have pasted the key of another Wisfli product. Each one has its own.</td></tr>
+          <tr><td class="first">Account limit reached</td><td>The key is already in use on three accounts. Free one at <a href="https://api.wisfli.com/manage">api.wisfli.com/manage</a>.</td></tr>
+          <tr><td class="first">License expired</td><td>The subscription ended. Existing positions are still managed; no new ones are opened until you renew.</td></tr>
+          <tr><td class="first">Cannot verify the license (no connection)</td><td>A short outage is tolerated. If it persists, the terminal or the VPS is blocking outbound HTTPS.</td></tr>
+          <tr><td class="first">Free backtest version</td><td>You attached the backtest build to a live chart. Use it in the Strategy Tester, or install the file from your purchase email.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data">
+        <caption>Trading messages</caption>
+        <tbody>
+          <tr><td class="first">The panel shows stacks but nothing ever trades</td><td>Normal for long stretches. Two conditions of a stack have to hold on the same closed bar, and one position at a time means the EA sits out while a trade is open.</td></tr>
+          <tr><td class="first">BLOCKED(SPREAD_nn)</td><td>The spread was above the ceiling when the signal came. Raise the ceiling only if your broker's normal spread on gold is genuinely wider.</td></tr>
+          <tr><td class="first">BLOCKED(DAILY_LOSS_LIMIT)</td><td>The daily loss stop has fired. Entries resume the next day.</td></tr>
+          <tr><td class="first">BLOCKED(MAX_TRADES_DAY) or (COOLDOWN)</td><td>Working as intended: five entries a day, five bars between them.</td></tr>
+          <tr><td class="first">risk is not enough for the minimum lot</td><td>Your balance, at 0.5% risk and a 600-point stop, cannot fund 0.01 lots. Either add funds, raise the risk knowingly, or switch to fixed lots and accept the larger risk.</td></tr>
+          <tr><td class="first">sell failed, ret=…</td><td>The broker rejected the order. The retcode text says why — usually trading disabled, market closed, or not enough margin.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="caveat">
+      <h3>Still stuck</h3>
+      <p>Write to <a href="mailto:support@wisfli.com">support@wisfli.com</a> and paste the lines from the Journal, plus your broker and account type. Do not send your licence key or your account password — neither is needed to work out what is happening.</p>
+    </div>
+  </div>
+</section>
+
+<div class="contact">
+  <div class="wrap">
+    <div>
+      <h2>Something unclear in this guide?</h2>
+      <p>Tell me which part and I will rewrite it.</p>
+    </div>
+    <div>
+      <a class="mail" href="mailto:support@wisfli.com">support@wisfli.com</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <a class="brand" href="https://wisfli.com/"><svg viewBox="0 0 60 40" aria-hidden="true"><path d="M0 0h60v40H0z" fill="#14528C"/><path d="M8 8h44v24H8z" fill="#fff"/><path d="M18 14h24v12H18z" fill="#C8322A"/></svg>WISFLI</a>
+        <p style="margin:0;max-width:26em">BearStack Pro is built and supported by one person in Alicante.</p>
+      </div>
+      <div>
+        <h4>BearStack Pro</h4>
+        <ul>
+          <li><a href="index.html">Product page</a></li>
+          <li><a href="index.html#live">Live on Armada</a></li>
+          <li><a href="index.html#pricing">Pricing</a></li>
+          <li><a href="https://api.wisfli.com/manage">Manage your subscription</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Wisfli</h4>
+        <ul>
+          <li><a href="https://wisfli.com/">wisfli.com</a></li>
+          <li><a href="https://jsgaston.github.io/candlegrid-web-en/">CandleGrid Pro</a></li>
+          <li><a href="https://jsgaston.github.io/regimeswitch-web-en/">RegimeSwitch Pro</a></li>
+          <li><a href="https://jsgaston.github.io/armada/">Armada</a></li>
+          <li><a href="mailto:support@wisfli.com">support@wisfli.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <p>Trading foreign exchange and CFDs on margin carries a high level of risk and can result in the loss of all of your capital. Backtested and simulated results do not represent actual trading and have inherent limitations, including the benefit of hindsight. Past performance does not indicate future results. BearStack Pro is trading software, not investment advice, and no outcome is promised or implied. Only trade with money you can afford to lose.</p>
+      <p>© <span id="yr">2026</span> Wisfli. Trading as Javier Santiago Gastón de Iriarte Cabrera, Tax ID 47033535F, Alicante, Spain.</p>
+    </div>
+  </div>
+</footer>
+
+</main>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
