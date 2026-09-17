@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Charlie — short-side XAUUSD system for MetaTrader 5 | Wisfli</title>
-<meta name="description" content="Charlie is a sell-only XAUUSD Expert Advisor for MetaTrader 5. Four condition stacks, closed-bar evaluation, one position at a time, hard daily limits. Running live on the Wisfli Armada account.">
+<title>BearStack Pro — short-side XAUUSD system for MetaTrader 5 | Wisfli</title>
+<meta name="description" content="BearStack Pro is a sell-only XAUUSD Expert Advisor for MetaTrader 5. Four condition stacks, closed-bar evaluation, one position at a time, hard daily limits. Running live on the Wisfli Armada account.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://jsgaston.github.io/Charlie/">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Charlie — short-side XAUUSD system for MetaTrader 5">
+<meta property="og:title" content="BearStack Pro — short-side XAUUSD system for MetaTrader 5">
 <meta property="og:description" content="Four bearish condition stacks on XAUUSD. Closed-bar decisions, one position at a time, daily loss stop. Results published from the Armada account.">
 <meta property="og:url" content="https://jsgaston.github.io/Charlie/">
 
@@ -21,11 +21,13 @@
 
 <!-- ============================================================
      PENDIENTE ANTES DE PUBLICAR  (buscar: REEMPLAZAR)
-       1. Precio mensual: aparece como "€__" en la sección Pricing.
-       2. Enlace de Stripe: href="https://buy.stripe.com/REEMPLAZAR"
+       1. Los dos enlaces de Stripe (mensual y pago único):
+          href="https://buy.stripe.com/REEMPLAZAR_MENSUAL"
+          href="https://buy.stripe.com/REEMPLAZAR_UNICO"
+          Precios puestos: 29 EUR/mes y 249 EUR pago unico.
        3. Si hay build de backtest gratuita, descomentar el bloque
           marcado BACKTEST-BUILD en la sección Pricing.
-       4. Magic number real en vivo: const CHARLIE_MAGIC (script final).
+       4. Magic number real en vivo: var BEARSTACK_MAGIC (script final).
           Ahora está el del EA por defecto (34034034).
      ============================================================ -->
 
@@ -54,14 +56,14 @@
 <!-- ================= NAV ================= -->
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="https://wisfli.com/"><svg viewBox="0 0 60 40" aria-hidden="true"><path d="M0 0h60v40H0z" fill="#14528C"/><path d="M8 8h44v24H8z" fill="#fff"/><path d="M18 14h24v12H18z" fill="#C8322A"/></svg>WISFLI <span class="prod">/ Charlie</span></a>
+    <a class="brand" href="https://wisfli.com/"><svg viewBox="0 0 60 40" aria-hidden="true"><path d="M0 0h60v40H0z" fill="#14528C"/><path d="M8 8h44v24H8z" fill="#fff"/><path d="M18 14h24v12H18z" fill="#C8322A"/></svg>WISFLI <span class="prod">/ BearStack Pro</span></a>
     <nav aria-label="Page">
       <a href="#how">How it works</a>
       <a href="#spec">Specification</a>
       <a href="#live">Live on Armada</a>
       <a href="#licence" class="opt">Licence</a>
       <a href="#faq" class="opt">Questions</a>
-      <a href="#pricing" class="pill">Get Charlie</a>
+      <a href="#pricing" class="pill">Get BearStack</a>
     </nav>
   </div>
 </header>
@@ -74,10 +76,10 @@
     <div>
       <p class="where"><i></i> XAUUSD · MetaTrader 5 · short side only</p>
       <h1 class="long">Four bearish setups.<br>One position at a time.</h1>
-      <p class="lede">Charlie reads gold on closed bars and counts conditions. When a breakout, reversal, momentum or mean-reversion stack reaches its threshold, it sells once — then manages that single position until the stop, the target, the time limit or Friday closes it.</p>
+      <p class="lede">BearStack Pro reads gold on closed bars and counts conditions. When a breakout, reversal, momentum or mean-reversion stack reaches its threshold, it sells once — then manages that single position until the stop, the target, the time limit or Friday closes it.</p>
       <p class="lede">No grid, no averaging down, no hidden martingale. Every decision is written to the Journal and to a CSV audit log.</p>
       <div class="actions">
-        <a class="btn brass" href="#pricing">Get Charlie</a>
+        <a class="btn brass" href="#pricing">Get BearStack Pro — €29/month</a>
         <a class="btn line" href="#live">See it running</a>
       </div>
     </div>
@@ -139,7 +141,7 @@
 <section id="how">
   <div class="wrap">
     <div class="head">
-      <h2>How Charlie decides</h2>
+      <h2>How BearStack Pro decides</h2>
       <p>Four independent condition stacks run on every closed bar. Each one counts how many of its conditions are true and fires when it reaches its minimum. They are checked in order, and the first one that qualifies is the one that trades.</p>
     </div>
 
@@ -269,7 +271,7 @@
     </dl>
 
     <div class="caveat">
-      <h3>What Charlie is not</h3>
+      <h3>What BearStack Pro is not</h3>
       <p>It is not a signal service and not a managed account: you run it on your own terminal and you stay in control of the settings. It does not promise a return, and gold on M1 is a fast, spread-sensitive market — broker conditions change the outcome more than they do on slower systems.</p>
       <p>The rule set was reconstructed from an analysis of historical XAUUSD behaviour, and the price-action detectors (structure breaks, rejections, tick pressure) are our own definitions. Run it in the Strategy Tester on your own broker's data before putting money behind it.</p>
     </div>
@@ -281,7 +283,7 @@
   <div class="wrap">
     <div class="head">
       <h2>Live on Armada <span class="tag-demo" id="acctType">DEMO</span></h2>
-      <p>Charlie trades on the Wisfli Armada account alongside the other systems. The numbers below are read straight from the published account file, updated every 15 minutes, and cover this bot only.</p>
+      <p>BearStack Pro trades on the Wisfli Armada account alongside the other systems, where it flies the <strong>Charlie</strong> flag. The numbers below are read straight from the published account file, updated every 15 minutes, and cover this bot only.</p>
     </div>
 
     <div class="board" id="liveBoard">
@@ -314,7 +316,7 @@
   <div class="wrap">
     <div class="head">
       <h2>How the licence works</h2>
-      <p>Charlie is licensed software. After payment you receive the compiled <span class="keybox">.ex5</span> by email together with a key, and the EA checks that key when it starts and while it runs.</p>
+      <p>BearStack Pro is licensed software. After payment you receive the compiled <span class="keybox">.ex5</span> by email together with a key, and the EA checks that key when it starts and while it runs.</p>
     </div>
 
     <div class="cols-2">
@@ -341,17 +343,16 @@
 <section id="pricing" class="panel">
   <div class="wrap">
     <div class="head">
-      <h2>Get Charlie</h2>
-      <p>One subscription, cancel any time from your own account page. VAT included in the price shown.</p>
+      <h2>Get BearStack Pro</h2>
+      <p>Monthly or a single payment — the software is the same either way. VAT is included in both prices, and the invoice is issued automatically.</p>
     </div>
 
     <div class="plans">
       <div class="plan pick">
-        <span class="tag">Subscription</span>
-        <h3>Charlie</h3>
-        <p class="who">For traders who want the system running on their own terminal, with updates included.</p>
-        <!-- REEMPLAZAR: precio mensual real -->
-        <p class="price">€__ <small>/ month</small></p>
+        <span class="tag">Most people start here</span>
+        <h3>Monthly</h3>
+        <p class="who">The whole system, with updates, for as long as you keep it. Cancel from your own account page whenever you want.</p>
+        <p class="price">€29 <small>/ month</small></p>
         <p class="was">VAT included · cancel any time</p>
         <ul>
           <li>Compiled EA delivered by email</li>
@@ -360,28 +361,41 @@
           <li>Setup guide and email support</li>
         </ul>
         <div class="pay-slot">
-          <!-- REEMPLAZAR: pegar aquí la URL del Payment Link de Stripe (Live) -->
-          <a class="btn brass" href="https://buy.stripe.com/REEMPLAZAR" rel="noopener">Subscribe with Stripe</a>
+          <!-- REEMPLAZAR: Payment Link de Stripe (Live), plan mensual -->
+          <a class="btn brass" href="https://buy.stripe.com/REEMPLAZAR_MENSUAL" rel="noopener">Subscribe — €29/month</a>
         </div>
       </div>
 
       <div class="plan">
-        <h3>Before you buy</h3>
-        <p class="who">What you need on your side for Charlie to work as intended.</p>
+        <h3>One payment</h3>
+        <p class="who">Same software, paid once. Worth it from roughly nine months on, if you already know you want to keep it.</p>
+        <p class="price">€249 <small>once</small></p>
+        <p class="was">VAT included · no recurring charge</p>
         <ul>
-          <li>MetaTrader 5 with XAUUSD from your broker</li>
-          <li>A terminal that stays on — a VPS is strongly recommended on M1</li>
-          <li><span class="keybox">https://api.wisfli.com</span> allowed in WebRequest</li>
-          <li>Money you can afford to lose, on a broker you trust</li>
+          <li>Everything in the monthly plan</li>
+          <li>Licence that does not expire</li>
+          <li>Updates included</li>
+          <li>Still limited to three accounts</li>
         </ul>
         <div class="pay-slot">
-          <a class="btn ghost" href="#faq">Read the questions first</a>
+          <!-- REEMPLAZAR: Payment Link de Stripe (Live), pago único -->
+          <a class="btn ghost" href="https://buy.stripe.com/REEMPLAZAR_UNICO" rel="noopener">Buy once — €249</a>
         </div>
-        <!-- BACKTEST-BUILD: si hay build gratuita de backtest, descomentar y dejar el .ex5 en el repo
-        <div class="pay-slot">
-          <a class="btn ghost" href="Charlie-Backtest.ex5" download>Download the backtest build</a>
-        </div>
-        -->
+      </div>
+    </div>
+
+    <div class="cols-3">
+      <div>
+        <h3>What you need</h3>
+        <p>MetaTrader 5 with XAUUSD from your broker, and a terminal that stays on — on M1 a VPS is not a luxury, it is the setup.</p>
+      </div>
+      <div>
+        <h3>One setting before you start</h3>
+        <p><span class="keybox">https://api.wisfli.com</span> allowed under Tools → Options → Expert Advisors → WebRequest. Without it the licence cannot be checked.</p>
+      </div>
+      <div>
+        <h3>And the obvious one</h3>
+        <p>Money you can afford to lose, on a broker you trust. Gold on the short side moves fast and the spread is part of the result.</p>
       </div>
     </div>
 
@@ -398,7 +412,7 @@
     <ol class="steps">
       <li>
         <b>Pay and receive the files</b>
-        <p>Stripe confirms the payment and the email arrives with <span class="keybox">Charlie.ex5</span> attached and your licence key.</p>
+        <p>Stripe confirms the payment and the email arrives with <span class="keybox">BearStack.ex5</span> attached and your licence key.</p>
       </li>
       <li>
         <b>Copy the EA into MetaTrader</b>
@@ -413,7 +427,7 @@
         <p>Paste the key into the inputs, enable algorithmic trading and check the Journal: the EA prints its magic number and its settings as it starts.</p>
       </li>
     </ol>
-    <p class="hint">Run it on a demo account for a few days first. It costs nothing and it is the only way to see how your broker's spread on gold behaves at the hours Charlie trades.</p>
+    <p class="hint">Run it on a demo account for a few days first. It costs nothing and it is the only way to see how your broker's spread on gold behaves at the hours BearStack Pro trades.</p>
   </div>
 </section>
 
@@ -428,7 +442,7 @@
     <div class="faq-list">
       <details>
         <summary>Can I backtest it before subscribing?</summary>
-        <p>The Strategy Tester is the right place to judge any system, and we encourage it. Ask at <a href="mailto:support@wisfli.com">support@wisfli.com</a> what is available for Charlie — when a free backtest build exists it is linked on this page, and it runs in the tester only, not on a live or demo chart.</p>
+        <p>The Strategy Tester is the right place to judge any system, and we encourage it. Ask at <a href="mailto:support@wisfli.com">support@wisfli.com</a> what is available for BearStack Pro — when a free backtest build exists it is linked on this page, and it runs in the tester only, not on a live or demo chart.</p>
       </details>
       <details>
         <summary>The EA says it cannot reach the licence server.</summary>
@@ -452,7 +466,7 @@
       </details>
       <details>
         <summary>Why does it only sell?</summary>
-        <p>The rules were derived from short-side behaviour on gold and no buy-side rule met the same standard, so none was invented to balance the system. Charlie does one thing. If you want the long side too, run it next to another system rather than expecting this one to cover both.</p>
+        <p>The rules were derived from short-side behaviour on gold and no buy-side rule met the same standard, so none was invented to balance the system. BearStack Pro does one thing. If you want the long side too, run it next to another system rather than expecting this one to cover both.</p>
       </details>
       <details>
         <summary>Which broker and which account type?</summary>
@@ -464,7 +478,7 @@
       </details>
       <details>
         <summary>Refunds</summary>
-        <p>Because the product is delivered digitally and immediately, the subscription is not refundable once the file and the key have been sent. You can cancel at any time and you keep access until the end of the period already paid. If the software does not work on your terminal, write in and it gets fixed or the payment gets returned.</p>
+        <p>Because the product is delivered digitally and immediately, neither plan is refundable once the file and the key have been sent. On the monthly plan you can cancel at any time and you keep access until the end of the period already paid. If the software does not work on your terminal, write in and it gets fixed or the payment gets returned.</p>
       </details>
     </div>
   </div>
@@ -489,10 +503,10 @@
     <div class="cols">
       <div>
         <a class="brand" href="https://wisfli.com/"><svg viewBox="0 0 60 40" aria-hidden="true"><path d="M0 0h60v40H0z" fill="#14528C"/><path d="M8 8h44v24H8z" fill="#fff"/><path d="M18 14h24v12H18z" fill="#C8322A"/></svg>WISFLI</a>
-        <p style="margin:0;max-width:26em">Charlie is built and supported by one person in Alicante.</p>
+        <p style="margin:0;max-width:26em">BearStack Pro is built and supported by one person in Alicante.</p>
       </div>
       <div>
-        <h4>Charlie</h4>
+        <h4>BearStack Pro</h4>
         <ul>
           <li><a href="#how">How it works</a></li>
           <li><a href="#spec">Specification</a></li>
@@ -513,7 +527,7 @@
       </div>
     </div>
     <div class="legal">
-      <p>Trading foreign exchange and CFDs on margin carries a high level of risk and can result in the loss of all of your capital. The results shown on this page come from a <strong>demo account</strong>; demo execution is more favourable than live execution. Backtested and simulated results do not represent actual trading and have inherent limitations, including the benefit of hindsight. Past performance does not indicate future results. Charlie is trading software, not investment advice, and no outcome is promised or implied. Only trade with money you can afford to lose.</p>
+      <p>Trading foreign exchange and CFDs on margin carries a high level of risk and can result in the loss of all of your capital. The results shown on this page come from a <strong>demo account</strong>; demo execution is more favourable than live execution. Backtested and simulated results do not represent actual trading and have inherent limitations, including the benefit of hindsight. Past performance does not indicate future results. BearStack Pro is trading software, not investment advice, and no outcome is promised or implied. Only trade with money you can afford to lose.</p>
       <p>© <span id="yr">2026</span> Wisfli. Trading as Javier Santiago Gastón de Iriarte Cabrera, Tax ID 47033535F, Alicante, Spain.</p>
     </div>
   </div>
@@ -526,7 +540,7 @@
   'use strict';
 
   /* REEMPLAZAR si el magic en vivo no es el del EA por defecto */
-  var CHARLIE_MAGIC = 34034034;
+  var BEARSTACK_MAGIC = 34034034;
   var STATS_URL = 'https://jsgaston.github.io/armada/stats.json';
 
   var yr = document.getElementById('yr');
@@ -602,7 +616,7 @@
     var last = values[values.length - 1];
     var stroke = last >= 0 ? '#45C29A' : '#E8715F';
     var svg = '' +
-      '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Equity curve of Charlie on the Armada account">' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Equity curve of BearStack Pro on the Armada account">' +
       (zeroY >= padT && zeroY <= H - padB
         ? '<line x1="0" y1="' + zeroY.toFixed(2) + '" x2="' + W + '" y2="' + zeroY.toFixed(2) + '" stroke="rgba(214,230,240,.26)" stroke-width="1" stroke-dasharray="5 5"/>'
         : '') +
@@ -617,16 +631,16 @@
     var i, s;
     for (i = 0; i < scopes.length; i++) {
       s = scopes[i];
-      if (s.kind === 'magic' && (s.id === 'm-' + CHARLIE_MAGIC ||
-          (s.magics && s.magics.indexOf(CHARLIE_MAGIC) !== -1))) return s;
+      if (s.kind === 'magic' && (s.id === 'm-' + BEARSTACK_MAGIC ||
+          (s.magics && s.magics.indexOf(BEARSTACK_MAGIC) !== -1))) return s;
     }
     for (i = 0; i < scopes.length; i++) {
       s = scopes[i];
-      if (s.kind === 'group' && s.magics && s.magics.indexOf(CHARLIE_MAGIC) !== -1) return s;
+      if (s.kind === 'group' && s.magics && s.magics.indexOf(BEARSTACK_MAGIC) !== -1) return s;
     }
     for (i = 0; i < scopes.length; i++) {
       s = scopes[i];
-      if (s.kind === 'group' && /charlie/i.test(s.name || '')) return s;
+      if (s.kind === 'group' && /charlie|bearstack/i.test(s.name || '')) return s;
     }
     return null;
   }
@@ -644,7 +658,7 @@
 
     var sc = pickScope(data);
     if (!sc || sc.empty) {
-      noData('Charlie has not closed any trades on the Armada account yet.');
+      noData('BearStack Pro has not closed any trades on the Armada account yet.');
       return;
     }
 
