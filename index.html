@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Charlie — short-side XAUUSD system for MetaTrader 5 | Wisfli</title>
+<meta name="description" content="Charlie is a sell-only XAUUSD Expert Advisor for MetaTrader 5. Four condition stacks, closed-bar evaluation, one position at a time, hard daily limits. Running live on the Wisfli Armada account.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://jsgaston.github.io/Charlie/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Charlie — short-side XAUUSD system for MetaTrader 5">
+<meta property="og:description" content="Four bearish condition stacks on XAUUSD. Closed-bar decisions, one position at a time, daily loss stop. Results published from the Armada account.">
+<meta property="og:url" content="https://jsgaston.github.io/Charlie/">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2306141F'/><rect x='6' y='6' width='20' height='20' fill='%23E4EAE8'/><rect x='11' y='11' width='10' height='10' fill='%23BE3A2B'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design-kit.css">
+
+<!-- ============================================================
+     PENDIENTE ANTES DE PUBLICAR  (buscar: REEMPLAZAR)
+       1. Precio mensual: aparece como "€__" en la sección Pricing.
+       2. Enlace de Stripe: href="https://buy.stripe.com/REEMPLAZAR"
+       3. Si hay build de backtest gratuita, descomentar el bloque
+          marcado BACKTEST-BUILD en la sección Pricing.
+       4. Magic number real en vivo: const CHARLIE_MAGIC (script final).
+          Ahora está el del EA por defecto (34034034).
+     ============================================================ -->
+
+<style>
+  /* Ajustes propios de esta página (el resto viene de design-kit.css) */
+  .stack{display:grid;gap:10px;padding:18px 20px 22px}
+  .stack .row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:14px}
+  .stack .sid{font:700 13px Archivo;color:var(--brass);letter-spacing:.04em}
+  .stack .fam{font:500 14px Archivo;color:#fff}
+  .stack .pips{display:flex;gap:5px;margin-top:5px}
+  .stack .pips i{width:26px;height:6px;background:var(--drule-2);display:block}
+  .stack .pips i.on{background:var(--sig-down)}
+  .stack .min{font:500 12.5px Archivo;color:var(--dmuted);white-space:nowrap}
+  .live-note{font:400 13.5px/1.6 Archivo;color:var(--dmuted);margin:18px 0 0}
+  .live-empty{font:500 15px Archivo;color:var(--dmuted);padding:26px 0}
+  #liveChart{height:190px}
+  #liveChart svg{display:block;width:100%;height:100%}
+  .tag-demo{font:700 11px Archivo;letter-spacing:.06em;background:var(--sig-down);color:#2A0B06;padding:3px 8px}
+  .keybox{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.92em;background:rgba(15,44,66,.07);padding:2px 7px}
+  .dark .keybox{background:rgba(220,230,236,.1)}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ================= NAV ================= -->
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="https://wisfli.com/"><svg viewBox="0 0 60 40" aria-hidden="true"><path d="M0 0h60v40H0z" fill="#14528C"/><path d="M8 8h44v24H8z" fill="#fff"/><path d="M18 14h24v12H18z" fill="#C8322A"/></svg>WISFLI <span class="prod">/ Charlie</span></a>
+    <nav aria-label="Page">
+      <a href="#how">How it works</a>
+      <a href="#spec">Specification</a>
+      <a href="#live">Live on Armada</a>
+      <a href="#licence" class="opt">Licence</a>
+      <a href="#faq" class="opt">Questions</a>
+      <a href="#pricing" class="pill">Get Charlie</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <p class="where"><i></i> XAUUSD · MetaTrader 5 · short side only</p>
+      <h1 class="long">Four bearish setups.<br>One position at a time.</h1>
+      <p class="lede">Charlie reads gold on closed bars and counts conditions. When a breakout, reversal, momentum or mean-reversion stack reaches its threshold, it sells once — then manages that single position until the stop, the target, the time limit or Friday closes it.</p>
+      <p class="lede">No grid, no averaging down, no hidden martingale. Every decision is written to the Journal and to a CSV audit log.</p>
+      <div class="actions">
+        <a class="btn brass" href="#pricing">Get Charlie</a>
+        <a class="btn line" href="#live">See it running</a>
+      </div>
+    </div>
+
+    <figure class="instrument" style="margin:0">
+      <header><b>Decision stack</b><span>closed bar · sell side</span></header>
+      <div class="stack" aria-hidden="true">
+        <div class="row">
+          <span class="sid">S01</span>
+          <span><span class="fam">Breakout</span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></span>
+          <span class="min">2 of 5</span>
+        </div>
+        <div class="row">
+          <span class="sid">S02</span>
+          <span><span class="fam">Reversal</span><span class="pips"><i class="on"></i><i></i><i></i><i></i></span></span>
+          <span class="min">2 of 4</span>
+        </div>
+        <div class="row">
+          <span class="sid">S03</span>
+          <span><span class="fam">Momentum</span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></span>
+          <span class="min">2 of 5</span>
+        </div>
+        <div class="row">
+          <span class="sid">S04</span>
+          <span><span class="fam">Mean reversion</span><span class="pips"><i class="on"></i><i></i><i></i><i></i></span></span>
+          <span class="min">2 of 4</span>
+        </div>
+      </div>
+      <dl class="inst-grid">
+        <div><dt>Symbol</dt><dd>XAUUSD</dd></div>
+        <div><dt>Signal bar</dt><dd>M1 close</dd></div>
+        <div><dt>Direction</dt><dd>Sell only</dd></div>
+        <div><dt>Open trades</dt><dd>1</dd></div>
+      </dl>
+      <p class="inst-foot">Illustration of the on-chart panel. A stack fires when enough of its conditions are true on the bar that just closed; the first stack that qualifies takes the trade.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= PRINCIPLES ================= -->
+<div class="principles">
+  <div class="wrap">
+    <div>
+      <h3>Closed bars only</h3>
+      <p>Conditions are read on the bar that has just finished. Nothing is evaluated mid-bar, so what you see in the tester is what runs live.</p>
+    </div>
+    <div>
+      <h3>One position, no stacking</h3>
+      <p>While a trade is open the EA takes no new entries on that symbol. There is no grid, no averaging and no lot multiplier.</p>
+    </div>
+    <div>
+      <h3>Hard limits, not hopes</h3>
+      <p>Maximum trades per day, a daily loss stop, a spread ceiling, a cooldown between entries and a time-based exit are all on by default.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section id="how">
+  <div class="wrap">
+    <div class="head">
+      <h2>How Charlie decides</h2>
+      <p>Four independent condition stacks run on every closed bar. Each one counts how many of its conditions are true and fires when it reaches its minimum. They are checked in order, and the first one that qualifies is the one that trades.</p>
+    </div>
+
+    <div class="feat-grid">
+      <figure class="art">
+        <svg viewBox="0 0 520 470" role="img" aria-label="Diagram of a bearish bar rejecting resistance after a break of structure">
+          <rect width="520" height="470" fill="#0F2C42"/>
+          <g stroke="rgba(214,230,240,.13)" stroke-width="1">
+            <path d="M0 80h520M0 160h520M0 240h520M0 320h520M0 400h520"/>
+          </g>
+
+          <!-- resistencia y soporte -->
+          <line x1="30" y1="96" x2="490" y2="96" stroke="#E0A92C" stroke-width="1.5" stroke-dasharray="6 5"/>
+          <text x="34" y="86" fill="#E0A92C" font-family="Archivo" font-size="13" font-weight="600">Resistance</text>
+          <line x1="30" y1="330" x2="490" y2="330" stroke="#8DA4B4" stroke-width="1.5" stroke-dasharray="6 5"/>
+          <text x="34" y="350" fill="#8DA4B4" font-family="Archivo" font-size="13" font-weight="600">Last swing low</text>
+
+          <!-- velas -->
+          <g stroke="#45C29A" fill="#45C29A">
+            <rect x="60" y="250" width="16" height="44"/><line x1="68" y1="236" x2="68" y2="250" stroke-width="2"/><line x1="68" y1="294" x2="68" y2="308" stroke-width="2"/>
+            <rect x="96" y="214" width="16" height="50"/><line x1="104" y1="198" x2="104" y2="214" stroke-width="2"/><line x1="104" y1="264" x2="104" y2="276" stroke-width="2"/>
+            <rect x="132" y="168" width="16" height="52"/><line x1="140" y1="150" x2="140" y2="168" stroke-width="2"/><line x1="140" y1="220" x2="140" y2="232" stroke-width="2"/>
+            <rect x="168" y="124" width="16" height="48"/><line x1="176" y1="108" x2="176" y2="124" stroke-width="2"/><line x1="176" y1="172" x2="176" y2="184" stroke-width="2"/>
+          </g>
+
+          <!-- vela de rechazo -->
+          <g>
+            <rect x="204" y="118" width="16" height="42" fill="#E8715F"/>
+            <line x1="212" y1="94" x2="212" y2="118" stroke="#E8715F" stroke-width="2"/>
+            <line x1="212" y1="160" x2="212" y2="170" stroke="#E8715F" stroke-width="2"/>
+            <text x="228" y="112" fill="#E8715F" font-family="Archivo" font-size="13" font-weight="600">Upper-wick rejection</text>
+            <text x="228" y="130" fill="#8DA4B4" font-family="Archivo" font-size="12.5">close in the lower half of the range</text>
+          </g>
+
+          <!-- continuación bajista -->
+          <g stroke="#E8715F" fill="#E8715F">
+            <rect x="240" y="150" width="16" height="54"/><line x1="248" y1="140" x2="248" y2="150" stroke-width="2"/><line x1="248" y1="204" x2="248" y2="216" stroke-width="2"/>
+            <rect x="276" y="196" width="16" height="60"/><line x1="284" y1="186" x2="284" y2="196" stroke-width="2"/><line x1="284" y1="256" x2="284" y2="268" stroke-width="2"/>
+            <rect x="312" y="248" width="16" height="66"/><line x1="320" y1="238" x2="320" y2="248" stroke-width="2"/><line x1="320" y1="314" x2="320" y2="326" stroke-width="2"/>
+            <rect x="348" y="306" width="16" height="58"/><line x1="356" y1="296" x2="356" y2="306" stroke-width="2"/><line x1="356" y1="364" x2="356" y2="376" stroke-width="2"/>
+          </g>
+
+          <!-- ruptura -->
+          <circle cx="356" cy="344" r="22" fill="none" stroke="#E0A92C" stroke-width="1.5"/>
+          <text x="384" y="342" fill="#fff" font-family="Archivo" font-size="13" font-weight="700">Break of</text>
+          <text x="384" y="359" fill="#fff" font-family="Archivo" font-size="13" font-weight="700">structure</text>
+
+          <!-- entrada, SL y TP -->
+          <line x1="30" y1="368" x2="490" y2="368" stroke="#DCE6EC" stroke-width="1"/>
+          <text x="34" y="386" fill="#DCE6EC" font-family="Archivo" font-size="12.5" font-weight="600">Sell at next tick</text>
+          <line x1="380" y1="308" x2="490" y2="308" stroke="#BE3A2B" stroke-width="2"/>
+          <text x="384" y="300" fill="#E8715F" font-family="Archivo" font-size="12.5" font-weight="600">Stop loss</text>
+          <line x1="380" y1="414" x2="490" y2="414" stroke="#1E6B57" stroke-width="2"/>
+          <text x="384" y="432" fill="#45C29A" font-family="Archivo" font-size="12.5" font-weight="600">Take profit</text>
+        </svg>
+        <figcaption>Schematic, not a real trade. Distances are for illustration.</figcaption>
+      </figure>
+
+      <div class="feats">
+        <div>
+          <h3>S01 — Breakout</h3>
+          <p>Bearish break of structure, a close under the recent support, trend strength on ADX, a volume spike and a strong-bodied bearish candle. Two of those five are enough.</p>
+        </div>
+        <div>
+          <h3>S02 — Reversal</h3>
+          <p>Change of character after higher lows, an upper-wick rejection, an overbought RSI and a stochastic cross down. Two of four.</p>
+        </div>
+        <div>
+          <h3>S03 — Momentum</h3>
+          <p>MACD below its signal, MACD under zero, negative momentum over the lookback, a volume spike and selling pressure in the ticks of the last seconds before the bar closes. Two of five.</p>
+        </div>
+        <div>
+          <h3>S04 — Mean reversion</h3>
+          <p>Price pressed against resistance, an upper-wick rejection, overbought RSI and the upper Bollinger zone. Two of four.</p>
+        </div>
+        <div>
+          <h3>Anything that cannot be computed counts as false</h3>
+          <p>If an indicator buffer is not ready, or there are too few ticks to measure pressure, that condition is simply not active. The EA never guesses a value in order to trade.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols-3">
+      <div>
+        <h3>Before the order</h3>
+        <p>Spread ceiling, one position per symbol, cooldown in bars since the last entry, maximum trades per day, daily loss stop, optional hour and weekday filters, and a Friday cutoff.</p>
+      </div>
+      <div>
+        <h3>While the trade is open</h3>
+        <p>Stop and target in points or in ATR multiples, break-even once the trade is far enough in front, optional trailing stop, a maximum holding time and a forced close on Friday afternoon.</p>
+      </div>
+      <div>
+        <h3>After every bar</h3>
+        <p>A CSV parity log records the timestamp, the signal, whether the entry was allowed, the reason codes and the full feature snapshot — so any decision can be replayed and checked.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SPEC ================= -->
+<section id="spec" class="panel">
+  <div class="wrap">
+    <div class="head">
+      <h2>Specification</h2>
+      <p>Default settings as shipped. Every line is an input you can change; the defaults are the ones running on the Armada account.</p>
+    </div>
+
+    <dl class="spec">
+      <div><dt>Symbol</dt><dd>XAUUSD (gold)</dd></div>
+      <div><dt>Signal timeframe</dt><dd>M1, closed bar</dd></div>
+      <div><dt>Direction</dt><dd>Sell only</dd></div>
+      <div><dt>Simultaneous positions</dt><dd>1 per symbol</dd></div>
+      <div><dt>Stop loss</dt><dd>600 points, or 2.0 × ATR</dd></div>
+      <div><dt>Take profit</dt><dd>430 points, or 1.5 × ATR</dd></div>
+      <div><dt>Break-even</dt><dd>at +250 points, offset 20</dd></div>
+      <div><dt>Trailing stop</dt><dd>optional, off by default</dd></div>
+      <div><dt>Maximum holding time</dt><dd>180 minutes</dd></div>
+      <div><dt>Friday cutoff</dt><dd>21:00 server time</dd></div>
+      <div><dt>Trades per day</dt><dd>5 maximum</dd></div>
+      <div><dt>Daily loss stop</dt><dd>2% of the day's opening balance</dd></div>
+      <div><dt>Cooldown between entries</dt><dd>5 bars</dd></div>
+      <div><dt>Spread ceiling</dt><dd>60 points</dd></div>
+      <div><dt>Position sizing</dt><dd>fixed lots, or % risk per trade</dd></div>
+      <div><dt>Minimum account</dt><dd>any balance that supports 0.01 lots on gold</dd></div>
+      <div><dt>Account types</dt><dd>hedging or netting, demo or live</dd></div>
+      <div><dt>Platform</dt><dd>MetaTrader 5, build 3000 or newer</dd></div>
+    </dl>
+
+    <div class="caveat">
+      <h3>What Charlie is not</h3>
+      <p>It is not a signal service and not a managed account: you run it on your own terminal and you stay in control of the settings. It does not promise a return, and gold on M1 is a fast, spread-sensitive market — broker conditions change the outcome more than they do on slower systems.</p>
+      <p>The rule set was reconstructed from an analysis of historical XAUUSD behaviour, and the price-action detectors (structure breaks, rejections, tick pressure) are our own definitions. Run it in the Strategy Tester on your own broker's data before putting money behind it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LIVE ON ARMADA ================= -->
+<section id="live" class="dark">
+  <div class="wrap">
+    <div class="head">
+      <h2>Live on Armada <span class="tag-demo" id="acctType">DEMO</span></h2>
+      <p>Charlie trades on the Wisfli Armada account alongside the other systems. The numbers below are read straight from the published account file, updated every 15 minutes, and cover this bot only.</p>
+    </div>
+
+    <div class="board" id="liveBoard">
+      <div><b id="mReturn">—</b><span>Return since start</span></div>
+      <div><b id="mDD">—</b><span>Maximum drawdown</span></div>
+      <div><b id="mPF">—</b><span>Profit factor</span></div>
+      <div><b id="mTrades">—</b><span>Closed trades</span></div>
+    </div>
+
+    <div class="instrument">
+      <header><b>Equity curve</b><span id="liveRange">loading…</span></header>
+      <div class="inst-chart" id="liveChart"></div>
+      <p class="inst-foot" id="liveFoot">Indexed to 100 at the first trade. Drawdown is measured on closed trades and on daily balance, and the worse of the two is published.</p>
+    </div>
+
+    <p class="live-note" id="liveMeta">Reading <a href="https://jsgaston.github.io/armada/stats.json">stats.json</a>…</p>
+
+    <div class="caveat">
+      <h3>Read this before you read the numbers</h3>
+      <p>The Armada account is a demo account. Demo execution is more forgiving than a real one: there are no requotes, slippage is optimistic and gold spreads widen far more violently on live fills. Treat the figures as a record of the logic running unattended, not as a return you should expect.</p>
+      <p>The sample is short, past results do not indicate future results, and a drawdown larger than any shown here is always possible.</p>
+    </div>
+
+    <p class="live-note">The full account, with every bot, the trade list and a Monte Carlo view, is on the <a href="https://jsgaston.github.io/armada/">Armada page</a>.</p>
+  </div>
+</section>
+
+<!-- ================= LICENCE ================= -->
+<section id="licence">
+  <div class="wrap">
+    <div class="head">
+      <h2>How the licence works</h2>
+      <p>Charlie is licensed software. After payment you receive the compiled <span class="keybox">.ex5</span> by email together with a key, and the EA checks that key when it starts and while it runs.</p>
+    </div>
+
+    <div class="cols-2">
+      <div class="prose">
+        <h3>Your key</h3>
+        <p>The key looks like <span class="keybox">WSF-XXXX-XXXX-XXXX</span>. You paste it into the EA inputs. One key works on up to three MetaTrader accounts, so your demo, your live account and a backup terminal are all covered.</p>
+        <p>The check is made against <span class="keybox">api.wisfli.com</span> over HTTPS. The EA sends the key and the account number, nothing else — no trade data, no credentials, no personal information.</p>
+        <h3>Allow the address in MetaTrader</h3>
+        <p>MetaTrader blocks outbound requests unless you list the address. Open <em>Tools → Options → Expert Advisors</em>, tick <em>Allow WebRequest for listed URL</em> and add <span class="keybox">https://api.wisfli.com</span>. This is the single most common reason a first run fails.</p>
+      </div>
+      <div class="prose">
+        <h3>If you cancel</h3>
+        <p>You keep access until the end of the period you already paid for. After that the EA stops opening new positions — and only that. Existing positions are never closed for you: stops, targets, break-even, trailing and the time exit all keep working so nothing is left unmanaged.</p>
+        <h3>Managing the subscription</h3>
+        <p>Everything — invoices, card changes, cancellation — is at <a href="https://api.wisfli.com/manage">api.wisfli.com/manage</a>. You cancel yourself, whenever you want, without writing to anyone.</p>
+        <h3>If something goes wrong</h3>
+        <p>Write to <a href="mailto:support@wisfli.com">support@wisfli.com</a> with the line the EA printed in the Journal. That line usually says exactly what the problem is.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRICING ================= -->
+<section id="pricing" class="panel">
+  <div class="wrap">
+    <div class="head">
+      <h2>Get Charlie</h2>
+      <p>One subscription, cancel any time from your own account page. VAT included in the price shown.</p>
+    </div>
+
+    <div class="plans">
+      <div class="plan pick">
+        <span class="tag">Subscription</span>
+        <h3>Charlie</h3>
+        <p class="who">For traders who want the system running on their own terminal, with updates included.</p>
+        <!-- REEMPLAZAR: precio mensual real -->
+        <p class="price">€__ <small>/ month</small></p>
+        <p class="was">VAT included · cancel any time</p>
+        <ul>
+          <li>Compiled EA delivered by email</li>
+          <li>Licence key valid on three accounts</li>
+          <li>Updates while the subscription is active</li>
+          <li>Setup guide and email support</li>
+        </ul>
+        <div class="pay-slot">
+          <!-- REEMPLAZAR: pegar aquí la URL del Payment Link de Stripe (Live) -->
+          <a class="btn brass" href="https://buy.stripe.com/REEMPLAZAR" rel="noopener">Subscribe with Stripe</a>
+        </div>
+      </div>
+
+      <div class="plan">
+        <h3>Before you buy</h3>
+        <p class="who">What you need on your side for Charlie to work as intended.</p>
+        <ul>
+          <li>MetaTrader 5 with XAUUSD from your broker</li>
+          <li>A terminal that stays on — a VPS is strongly recommended on M1</li>
+          <li><span class="keybox">https://api.wisfli.com</span> allowed in WebRequest</li>
+          <li>Money you can afford to lose, on a broker you trust</li>
+        </ul>
+        <div class="pay-slot">
+          <a class="btn ghost" href="#faq">Read the questions first</a>
+        </div>
+        <!-- BACKTEST-BUILD: si hay build gratuita de backtest, descomentar y dejar el .ex5 en el repo
+        <div class="pay-slot">
+          <a class="btn ghost" href="Charlie-Backtest.ex5" download>Download the backtest build</a>
+        </div>
+        -->
+      </div>
+    </div>
+
+    <p class="hint">Payment is handled by Stripe; Wisfli never sees your card details. The invoice is issued automatically as a PDF. Delivery is by email within a few minutes of payment — check the spam folder if it is not there.</p>
+  </div>
+</section>
+
+<!-- ================= SETUP ================= -->
+<section id="setup">
+  <div class="wrap">
+    <div class="head solo">
+      <h2>From payment to first trade</h2>
+    </div>
+    <ol class="steps">
+      <li>
+        <b>Pay and receive the files</b>
+        <p>Stripe confirms the payment and the email arrives with <span class="keybox">Charlie.ex5</span> attached and your licence key.</p>
+      </li>
+      <li>
+        <b>Copy the EA into MetaTrader</b>
+        <p>In MetaTrader: <em>File → Open Data Folder → MQL5 → Experts</em>. Drop the file there and refresh the Navigator, or restart the terminal.</p>
+      </li>
+      <li>
+        <b>Allow the licence address</b>
+        <p><em>Tools → Options → Expert Advisors</em>, tick <em>Allow WebRequest for listed URL</em> and add <span class="keybox">https://api.wisfli.com</span>.</p>
+      </li>
+      <li>
+        <b>Attach it to XAUUSD, M1</b>
+        <p>Paste the key into the inputs, enable algorithmic trading and check the Journal: the EA prints its magic number and its settings as it starts.</p>
+      </li>
+    </ol>
+    <p class="hint">Run it on a demo account for a few days first. It costs nothing and it is the only way to see how your broker's spread on gold behaves at the hours Charlie trades.</p>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section id="faq" class="panel">
+  <div class="wrap">
+    <div class="head">
+      <h2>Questions</h2>
+      <p>If yours is not here, write to <a href="mailto:support@wisfli.com">support@wisfli.com</a>.</p>
+    </div>
+
+    <div class="faq-list">
+      <details>
+        <summary>Can I backtest it before subscribing?</summary>
+        <p>The Strategy Tester is the right place to judge any system, and we encourage it. Ask at <a href="mailto:support@wisfli.com">support@wisfli.com</a> what is available for Charlie — when a free backtest build exists it is linked on this page, and it runs in the tester only, not on a live or demo chart.</p>
+      </details>
+      <details>
+        <summary>The EA says it cannot reach the licence server.</summary>
+        <p>Nine times out of ten the address is not allowed in MetaTrader. Add <span class="keybox">https://api.wisfli.com</span> under <em>Tools → Options → Expert Advisors → Allow WebRequest for listed URL</em>, exactly like that, with no trailing slash. If it still fails, a firewall or the VPS provider may be blocking outbound HTTPS.</p>
+      </details>
+      <details>
+        <summary>Does it need a permanent internet connection?</summary>
+        <p>It needs one to validate the licence periodically. Short outages are tolerated and open positions keep being managed. A VPS is the sensible setup anyway, since a system reading M1 bars should not depend on your laptop staying awake.</p>
+      </details>
+      <details>
+        <summary>What happens to my trades if the subscription ends?</summary>
+        <p>New entries stop. Everything else continues: stop loss, take profit, break-even, trailing and the time exit are all still applied, so no position is abandoned. Nothing is force-closed by the licence.</p>
+      </details>
+      <details>
+        <summary>Can I use it on more than one account?</summary>
+        <p>Yes, up to three MetaTrader accounts with the same key — typically a demo, a live account and a spare terminal. Sharing the file or the key outside your own accounts is not permitted and is the one thing that gets a licence revoked.</p>
+      </details>
+      <details>
+        <summary>Do demo accounts need a licence?</summary>
+        <p>Yes. The subscription covers the software, not the account type, so a demo chart validates the key exactly as a live one does.</p>
+      </details>
+      <details>
+        <summary>Why does it only sell?</summary>
+        <p>The rules were derived from short-side behaviour on gold and no buy-side rule met the same standard, so none was invented to balance the system. Charlie does one thing. If you want the long side too, run it next to another system rather than expecting this one to cover both.</p>
+      </details>
+      <details>
+        <summary>Which broker and which account type?</summary>
+        <p>Any MetaTrader 5 broker offering XAUUSD, hedging or netting. What matters far more than the brand is the spread and the commission on gold during the hours the EA is active: on M1, a wide-spread account will change the result materially.</p>
+      </details>
+      <details>
+        <summary>Can I change the settings?</summary>
+        <p>Every parameter is exposed as an input: thresholds, stops, filters, sizing, session hours. The defaults are what runs on the Armada account, so if you change them the published results no longer describe your setup.</p>
+      </details>
+      <details>
+        <summary>Refunds</summary>
+        <p>Because the product is delivered digitally and immediately, the subscription is not refundable once the file and the key have been sent. You can cancel at any time and you keep access until the end of the period already paid. If the software does not work on your terminal, write in and it gets fixed or the payment gets returned.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<div class="contact">
+  <div class="wrap">
+    <div>
+      <h2>Questions before buying?</h2>
+      <p>Written by the person who built it, usually the same day.</p>
+    </div>
+    <div>
+      <a class="mail" href="mailto:support@wisfli.com">support@wisfli.com</a>
+    </div>
+  </div>
+</div>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <a class="brand" href="https://wisfli.com/"><svg viewBox="0 0 60 40" aria-hidden="true"><path d="M0 0h60v40H0z" fill="#14528C"/><path d="M8 8h44v24H8z" fill="#fff"/><path d="M18 14h24v12H18z" fill="#C8322A"/></svg>WISFLI</a>
+        <p style="margin:0;max-width:26em">Charlie is built and supported by one person in Alicante.</p>
+      </div>
+      <div>
+        <h4>Charlie</h4>
+        <ul>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#spec">Specification</a></li>
+          <li><a href="#live">Live on Armada</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="https://api.wisfli.com/manage">Manage your subscription</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Wisfli</h4>
+        <ul>
+          <li><a href="https://wisfli.com/">wisfli.com</a></li>
+          <li><a href="https://jsgaston.github.io/candlegrid-web-en/">CandleGrid Pro</a></li>
+          <li><a href="https://jsgaston.github.io/regimeswitch-web-en/">RegimeSwitch Pro</a></li>
+          <li><a href="https://jsgaston.github.io/armada/">Armada</a></li>
+          <li><a href="mailto:support@wisfli.com">support@wisfli.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <p>Trading foreign exchange and CFDs on margin carries a high level of risk and can result in the loss of all of your capital. The results shown on this page come from a <strong>demo account</strong>; demo execution is more favourable than live execution. Backtested and simulated results do not represent actual trading and have inherent limitations, including the benefit of hindsight. Past performance does not indicate future results. Charlie is trading software, not investment advice, and no outcome is promised or implied. Only trade with money you can afford to lose.</p>
+      <p>© <span id="yr">2026</span> Wisfli. Trading as Javier Santiago Gastón de Iriarte Cabrera, Tax ID 47033535F, Alicante, Spain.</p>
+    </div>
+  </div>
+</footer>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* REEMPLAZAR si el magic en vivo no es el del EA por defecto */
+  var CHARLIE_MAGIC = 34034034;
+  var STATS_URL = 'https://jsgaston.github.io/armada/stats.json';
+
+  var yr = document.getElementById('yr');
+  if (yr) yr.textContent = new Date().getFullYear();
+
+  /* ---------- utilidades ---------- */
+  function $(id) { return document.getElementById(id); }
+
+  function fmtPct(v, digits) {
+    if (v === null || v === undefined || isNaN(v)) return '—';
+    var d = (digits === undefined) ? 2 : digits;
+    return (v > 0 ? '+' : '') + Number(v).toFixed(d) + '%';
+  }
+  function fmtNum(v, digits) {
+    if (v === null || v === undefined || isNaN(v)) return '—';
+    return Number(v).toFixed(digits === undefined ? 2 : digits);
+  }
+  function fmtDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso).slice(0, 10);
+    return d.toISOString().slice(0, 10);
+  }
+
+  /* Interpolación monótona cúbica (Fritsch-Carlson): no inventa picos */
+  function monotonePath(pts) {
+    var n = pts.length;
+    if (n === 0) return '';
+    if (n === 1) return 'M' + pts[0][0] + ' ' + pts[0][1];
+    var i, dx = [], dy = [], m = [], slope = [];
+    for (i = 0; i < n - 1; i++) {
+      dx.push(pts[i + 1][0] - pts[i][0]);
+      dy.push(pts[i + 1][1] - pts[i][1]);
+      slope.push(dx[i] === 0 ? 0 : dy[i] / dx[i]);
+    }
+    m.push(slope[0]);
+    for (i = 1; i < n - 1; i++) {
+      if (slope[i - 1] * slope[i] <= 0) { m.push(0); }
+      else {
+        var w1 = 2 * dx[i] + dx[i - 1], w2 = dx[i] + 2 * dx[i - 1];
+        m.push((w1 + w2) / (w1 / slope[i - 1] + w2 / slope[i]));
+      }
+    }
+    m.push(slope[n - 2]);
+    var d = 'M' + pts[0][0].toFixed(2) + ' ' + pts[0][1].toFixed(2);
+    for (i = 0; i < n - 1; i++) {
+      var h = dx[i] / 3;
+      d += ' C' + (pts[i][0] + h).toFixed(2) + ' ' + (pts[i][1] + h * m[i]).toFixed(2) +
+           ' ' + (pts[i + 1][0] - h).toFixed(2) + ' ' + (pts[i + 1][1] - h * m[i + 1]).toFixed(2) +
+           ' ' + pts[i + 1][0].toFixed(2) + ' ' + pts[i + 1][1].toFixed(2);
+    }
+    return d;
+  }
+
+  function drawCurve(container, values) {
+    var W = 900, H = 190, padT = 16, padB = 22, padX = 6;
+    if (!values || values.length < 2) {
+      container.innerHTML = '<p class="live-empty">Not enough closed trades yet to draw a curve.</p>';
+      return;
+    }
+    var min = Math.min.apply(null, values), max = Math.max.apply(null, values);
+    if (max - min < 0.001) { max = min + 1; }
+    var pad = (max - min) * 0.12;
+    min -= pad; max += pad;
+    var innerW = W - padX * 2, innerH = H - padT - padB;
+    var pts = values.map(function (v, i) {
+      var x = padX + (values.length === 1 ? innerW / 2 : innerW * i / (values.length - 1));
+      var y = padT + innerH * (1 - (v - min) / (max - min));
+      return [x, y];
+    });
+    var path = monotonePath(pts);
+    var zeroY = padT + innerH * (1 - (0 - min) / (max - min));
+    var last = values[values.length - 1];
+    var stroke = last >= 0 ? '#45C29A' : '#E8715F';
+    var svg = '' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Equity curve of Charlie on the Armada account">' +
+      (zeroY >= padT && zeroY <= H - padB
+        ? '<line x1="0" y1="' + zeroY.toFixed(2) + '" x2="' + W + '" y2="' + zeroY.toFixed(2) + '" stroke="rgba(214,230,240,.26)" stroke-width="1" stroke-dasharray="5 5"/>'
+        : '') +
+      '<path d="' + path + '" fill="none" stroke="' + stroke + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+      '<circle cx="' + pts[pts.length - 1][0].toFixed(2) + '" cy="' + pts[pts.length - 1][1].toFixed(2) + '" r="3.2" fill="' + stroke + '"/>' +
+      '</svg>';
+    container.innerHTML = svg;
+  }
+
+  function pickScope(data) {
+    var scopes = (data && data.scopes) || [];
+    var i, s;
+    for (i = 0; i < scopes.length; i++) {
+      s = scopes[i];
+      if (s.kind === 'magic' && (s.id === 'm-' + CHARLIE_MAGIC ||
+          (s.magics && s.magics.indexOf(CHARLIE_MAGIC) !== -1))) return s;
+    }
+    for (i = 0; i < scopes.length; i++) {
+      s = scopes[i];
+      if (s.kind === 'group' && s.magics && s.magics.indexOf(CHARLIE_MAGIC) !== -1) return s;
+    }
+    for (i = 0; i < scopes.length; i++) {
+      s = scopes[i];
+      if (s.kind === 'group' && /charlie/i.test(s.name || '')) return s;
+    }
+    return null;
+  }
+
+  function noData(msg) {
+    $('liveRange').textContent = '';
+    $('liveChart').innerHTML = '<p class="live-empty">' + msg + '</p>';
+    $('liveMeta').innerHTML = 'The whole account, with every bot, is on the ' +
+      '<a href="https://jsgaston.github.io/armada/">Armada page</a>.';
+  }
+
+  function render(data) {
+    var acc = data.account || {};
+    if (acc.type) $('acctType').textContent = String(acc.type).toUpperCase();
+
+    var sc = pickScope(data);
+    if (!sc || sc.empty) {
+      noData('Charlie has not closed any trades on the Armada account yet.');
+      return;
+    }
+
+    var r = sc.returns || {}, k = sc.risk || {}, t = sc.trades || {};
+    $('mReturn').textContent = fmtPct(r.total_pct);
+    $('mDD').textContent = (k.max_drawdown_pct === null || k.max_drawdown_pct === undefined)
+      ? '—' : '-' + fmtNum(k.max_drawdown_pct) + '%';
+    $('mPF').textContent = fmtNum(t.profit_factor);
+    $('mTrades').textContent = (t.trades === null || t.trades === undefined) ? '—' : String(t.trades);
+
+    var eq = (sc.equity || []).map(function (p) { return p.v - 100; });
+    drawCurve($('liveChart'), eq);
+
+    var first = (sc.equity && sc.equity.length) ? sc.equity[0].d : null;
+    var lastd = (sc.equity && sc.equity.length) ? sc.equity[sc.equity.length - 1].d : null;
+    $('liveRange').textContent = first && lastd ? (first + ' → ' + lastd) : '';
+
+    var bits = [];
+    if (t.win_rate_pct !== null && t.win_rate_pct !== undefined) bits.push(fmtNum(t.win_rate_pct, 1) + '% winners');
+    if (r.calendar_days) bits.push(r.calendar_days + ' days live');
+    if (acc.broker) bits.push('broker: ' + acc.broker);
+    if (data.updated_utc) bits.push('updated ' + fmtDate(data.updated_utc));
+    $('liveMeta').textContent = bits.join(' · ');
+  }
+
+  function load() {
+    if (!window.fetch) { noData('Live figures need a modern browser.'); return; }
+    fetch(STATS_URL, { cache: 'no-store' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        try { render(data); }
+        catch (e) { noData('Live figures could not be read right now.'); }
+      })
+      .catch(function () {
+        noData('Live figures are not reachable right now. The Armada page has the full record.');
+      });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', load);
+  } else {
+    load();
+  }
+})();
+</script>
+
+</body>
+</html>
